@@ -14,3 +14,4 @@ erloff = { git = "https://gitlab.com/everythingfunctional/erloff.git"}
 
 [dev-dependencies]
 veggies = { git = "https://gitlab.com/everythingfunctional/veggies.git"}
+quaff_asserts = { path = "./build/dependencies/quaff/quaff_asserts" }

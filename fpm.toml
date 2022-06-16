@@ -1,0 +1,9 @@
+name = "json_to_fortran"
+version = "0.0.1"
+license = "MIT"
+author = "Giovanni Facco"
+maintainer = "gfacco@gmail.com"
+copyright = "2022 Giovanni Facco"
+
+[dev-dependencies]
+veggies = { git = "https://gitlab.com/everythingfunctional/veggies.git"}

@@ -8,9 +8,6 @@ contains
         use json_to_quaff_test, only: &
                 json_to_quaff_json_to_quaff => &
                     test_json_to_quaff
-        use nothing_test, only: &
-                nothing_nothing => &
-                    test_nothing
         use veggies, only: test_item_t, test_that, run_tests
 
 
@@ -18,10 +15,9 @@ contains
         logical :: passed
 
         type(test_item_t) :: tests
-        type(test_item_t) :: individual_tests(2)
+        type(test_item_t) :: individual_tests(1)
 
         individual_tests(1) = json_to_quaff_json_to_quaff()
-        individual_tests(2) = nothing_nothing()
         tests = test_that(individual_tests)
 
 

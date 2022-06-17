@@ -1,6 +1,6 @@
 module json_to_quaff_test
   use veggies, only: assert_equals, result_t, test_item_t, describe, it, succeed, fail
-  use json_to_quaff_m, only : &
+  use json_to_quaff, only : &
       fallible_mass_t, &
       fallible_temperature_t, &
       fallible_time_t, &

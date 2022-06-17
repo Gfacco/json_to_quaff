@@ -1,4 +1,4 @@
-name = "json_to_fortran"
+name = "json_to_quaff"
 version = "0.0.1"
 license = "MIT"
 author = "Giovanni Facco"

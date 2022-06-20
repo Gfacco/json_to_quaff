@@ -2,6 +2,7 @@ module json_to_quaff_test
   use veggies, only: assert_equals, result_t, test_item_t, describe, it, succeed, fail
   use json_to_quaff, only : &
       fallible_mass_t, &
+      fallible_length_t, &
       fallible_temperature_t, &
       fallible_time_t, &
       fallible_volume_t
@@ -10,7 +11,8 @@ module json_to_quaff_test
       SECONDS, &
       CUBIC_MILLIMETERS, &
       KILOGRAMS, &
-      KELVIN
+      KELVIN, &
+      METERS
   use rojff, only: fallible_json_value_t, parse_json_from_string
   use erloff, only: error_list_t
   use quaff_asserts_m, only: assert_equals
@@ -61,6 +63,15 @@ contains
           , it( &
               "with errors", &
               check_mass_with_errors) &
+          ]) &
+      , describe( &
+          "a fallible_length_t", &
+          [ it( &
+              "with no errors", &
+              check_length_valid) &
+          , it( &
+              "with errors", &
+              check_length_with_errors) &
           ]) &
     ])
   end function
@@ -188,6 +199,49 @@ contains
     if (fallible_quaff_mass%failed()) then
       errors_quaff = fallible_quaff_mass%errors()
       errors_rojff = fallible_json_mass%errors
+      result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
+    else
+      result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")
+    end if
+  end function
+
+  function check_length_valid() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_length
+    type(fallible_length_t) :: fallible_quaff_length
+    type(error_list_t) :: errors
+    character(len=*), parameter :: length_c ='"1.0 m"'
+    double precision, parameter :: length_r = 1.0d0
+
+
+    fallible_json_length = parse_json_from_string(length_c)
+
+    fallible_quaff_length = fallible_length_t(fallible_json_length)
+
+    if (fallible_quaff_length%failed()) then
+      errors = fallible_quaff_length%errors()
+      result_ = fail(errors%to_string())
+    else
+      result_ = assert_equals(fallible_quaff_length%length(), length_r.unit.METERS)
+    end if
+  end function
+
+  function check_length_with_errors() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_length
+    type(fallible_length_t) :: fallible_quaff_length
+    type(error_list_t) :: errors_quaff, errors_rojff
+    character(len=*), parameter :: not_a_json_c ='"1.0 m'
+    double precision, parameter :: length_r = 1.0d0
+
+
+    fallible_json_length = parse_json_from_string(not_a_json_c)
+
+    fallible_quaff_length = fallible_length_t(fallible_json_length)
+
+    if (fallible_quaff_length%failed()) then
+      errors_quaff = fallible_quaff_length%errors()
+      errors_rojff = fallible_json_length%errors
       result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
     else
       result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")

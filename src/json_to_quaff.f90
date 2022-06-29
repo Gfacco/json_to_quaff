@@ -8,4 +8,5 @@ module json_to_quaff
   use json_to_fallible_bool_m, only : fallible_bool_t
   use json_to_quaff_pressure_m, only: fallible_pressure_t
   use json_to_quaff_mass_rate_m, only: fallible_mass_rate_t
+  use json_to_quaff_power_m, only: fallible_power_t
 end module

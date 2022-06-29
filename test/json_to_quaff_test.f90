@@ -9,7 +9,8 @@ module json_to_quaff_test
       fallible_integer_t, &
       fallible_bool_t, &
       fallible_pressure_t, &
-      fallible_mass_rate_t
+      fallible_mass_rate_t, &
+      fallible_power_t
   use quaff, only: &
       operator(.unit.), &
       SECONDS, &
@@ -18,7 +19,8 @@ module json_to_quaff_test
       KELVIN, &
       METERS, &
       PASCALS, &
-      KILOGRAMS_PER_SECOND
+      KILOGRAMS_PER_SECOND, &
+      WATTS
   use rojff, only: fallible_json_value_t, parse_json_from_string
   use erloff, only: error_list_t
   use quaff_asserts_m, only: assert_equals
@@ -105,6 +107,24 @@ contains
           , it( &
               "with errors", &
               check_pressure_with_errors) &
+          ]) &
+      , describe( &
+          "a fallible_mass_rate_t", &
+          [ it( &
+              "with no errors", &
+              check_mass_rate_valid) &
+          , it( &
+              "with errors", &
+              check_mass_rate_with_errors) &
+          ]) &
+      , describe( &
+          "a fallible_power_t", &
+          [ it( &
+              "with no errors", &
+              check_power_valid) &
+          , it( &
+              "with errors", &
+              check_power_with_errors) &
           ]) &
     ])
   end function
@@ -480,6 +500,48 @@ contains
     if (fallible_quaff_mass_rate%failed()) then
       errors_quaff = fallible_quaff_mass_rate%errors()
       errors_rojff = fallible_json_mass_rate%errors
+      result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
+    else
+      result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")
+    end if
+  end function
+
+  function check_power_valid() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_power
+    type(fallible_power_t) :: fallible_quaff_power
+    type(error_list_t) :: errors
+    character(len=*), parameter :: power_c ='"1.0 W"'
+    double precision, parameter :: power_r = 1.0d0
+
+
+    fallible_json_power = parse_json_from_string(power_c)
+
+    fallible_quaff_power = fallible_power_t(fallible_json_power)
+
+    if (fallible_quaff_power%failed()) then
+      errors = fallible_quaff_power%errors()
+      result_ = fail(errors%to_string())
+    else
+      result_ = assert_equals(fallible_quaff_power%power(), power_r.unit.WATTS)
+    end if
+  end function
+
+  function check_power_with_errors() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_power
+    type(fallible_power_t) :: fallible_quaff_power
+    type(error_list_t) :: errors_quaff, errors_rojff
+    character(len=*), parameter :: not_a_json_c ='"1.0 W'
+
+
+    fallible_json_power = parse_json_from_string(not_a_json_c)
+
+    fallible_quaff_power = fallible_power_t(fallible_json_power)
+
+    if (fallible_quaff_power%failed()) then
+      errors_quaff = fallible_quaff_power%errors()
+      errors_rojff = fallible_json_power%errors
       result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
     else
       result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")

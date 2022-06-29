@@ -7,14 +7,16 @@ module json_to_quaff_test
       fallible_time_t, &
       fallible_volume_t, &
       fallible_integer_t, &
-      fallible_bool_t
+      fallible_bool_t, &
+      fallible_pressure_t
   use quaff, only: &
       operator(.unit.), &
       SECONDS, &
       CUBIC_MILLIMETERS, &
       KILOGRAMS, &
       KELVIN, &
-      METERS
+      METERS, &
+      PASCALS
   use rojff, only: fallible_json_value_t, parse_json_from_string
   use erloff, only: error_list_t
   use quaff_asserts_m, only: assert_equals
@@ -93,6 +95,15 @@ contains
               "with errors", &
               check_bool_with_errors) &
           ]) &
+      , describe( &
+          "a fallible_pressure_t", &
+          [ it( &
+              "with no errors", &
+              check_pressure_valid) &
+          , it( &
+              "with errors", &
+              check_pressure_with_errors) &
+          ]) &
     ])
   end function
 
@@ -137,7 +148,7 @@ contains
       result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")
     end if
   end function
-  
+
   function check_volume_valid() result(result_)
     type(result_t) :: result_
     type(fallible_json_value_t) :: fallible_json_volume
@@ -179,7 +190,7 @@ contains
       result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")
     end if
   end function
-  
+
   function check_mass_valid() result(result_)
     type(result_t) :: result_
     type(fallible_json_value_t) :: fallible_json_mass
@@ -263,7 +274,7 @@ contains
       result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")
     end if
   end function
-  
+
   function check_temperature_valid() result(result_)
     type(result_t) :: result_
     type(fallible_json_value_t) :: fallible_json_temperature
@@ -383,6 +394,48 @@ contains
     if (fallible_quaff_bool%failed()) then
       errors_quaff = fallible_quaff_bool%errors()
       errors_rojff = fallible_json_bool%errors
+      result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
+    else
+      result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")
+    end if
+  end function
+
+  function check_pressure_valid() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_pressure
+    type(fallible_pressure_t) :: fallible_quaff_pressure
+    type(error_list_t) :: errors
+    character(len=*), parameter :: pressure_c ='"1.0 Pa"'
+    double precision, parameter :: pressure_r = 1.0d0
+
+
+    fallible_json_pressure = parse_json_from_string(pressure_c)
+
+    fallible_quaff_pressure = fallible_pressure_t(fallible_json_pressure)
+
+    if (fallible_quaff_pressure%failed()) then
+      errors = fallible_quaff_pressure%errors()
+      result_ = fail(errors%to_string())
+    else
+      result_ = assert_equals(fallible_quaff_pressure%pressure(), pressure_r.unit.PASCALS)
+    end if
+  end function
+
+  function check_pressure_with_errors() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_pressure
+    type(fallible_pressure_t) :: fallible_quaff_pressure
+    type(error_list_t) :: errors_quaff, errors_rojff
+    character(len=*), parameter :: not_a_json_c ='"1.0 Pa'
+
+
+    fallible_json_pressure = parse_json_from_string(not_a_json_c)
+
+    fallible_quaff_pressure = fallible_pressure_t(fallible_json_pressure)
+
+    if (fallible_quaff_pressure%failed()) then
+      errors_quaff = fallible_quaff_pressure%errors()
+      errors_rojff = fallible_json_pressure%errors
       result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
     else
       result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")

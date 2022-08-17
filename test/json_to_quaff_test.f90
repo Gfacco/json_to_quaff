@@ -11,7 +11,8 @@ module json_to_quaff_test
       fallible_real_t, &
       fallible_pressure_t, &
       fallible_mass_rate_t, &
-      fallible_power_t
+      fallible_power_t, &
+      fallible_speed_t
 
   use quaff, only: &
       operator(.unit.), &
@@ -22,7 +23,8 @@ module json_to_quaff_test
       METERS, &
       PASCALS, &
       KILOGRAMS_PER_SECOND, &
-      WATTS
+      WATTS, &
+      METERS_PER_SECOND
   use rojff, only: fallible_json_value_t, parse_json_from_string
   use erloff, only: error_list_t
   use quaff_asserts_m, only: assert_equals
@@ -82,6 +84,15 @@ contains
           , it( &
               "with errors", &
               check_length_with_errors) &
+          ]) &
+      , describe( &
+          "a fallible_speed_t", &
+          [ it( &
+              "with no errors", &
+              check_speed_valid) &
+          , it( &
+              "with errors", &
+              check_speed_with_errors) &
           ]) &
       , describe( &
           "a fallible_integer_t", &
@@ -302,6 +313,47 @@ contains
     if (fallible_quaff_length%failed()) then
       errors_quaff = fallible_quaff_length%errors()
       errors_rojff = fallible_json_length%errors
+      result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
+    else
+      result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")
+    end if
+  end function
+  function check_speed_valid() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_speed
+    type(fallible_speed_t) :: fallible_quaff_speed
+    type(error_list_t) :: errors
+    character(len=*), parameter :: speed_c ='"1.0 m/s"'
+    double precision, parameter :: speed_r = 1.0d0
+
+
+    fallible_json_speed = parse_json_from_string(speed_c)
+
+    fallible_quaff_speed = fallible_speed_t(fallible_json_speed)
+
+    if (fallible_quaff_speed%failed()) then
+      errors = fallible_quaff_speed%errors()
+      result_ = fail(errors%to_string())
+    else
+      result_ = assert_equals(fallible_quaff_speed%speed(), speed_r.unit.METERS_PER_SECOND)
+    end if
+  end function
+
+  function check_speed_with_errors() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_speed
+    type(fallible_speed_t) :: fallible_quaff_speed
+    type(error_list_t) :: errors_quaff, errors_rojff
+    character(len=*), parameter :: not_a_json_c ='"1.0 m'
+
+
+    fallible_json_speed = parse_json_from_string(not_a_json_c)
+
+    fallible_quaff_speed = fallible_speed_t(fallible_json_speed)
+
+    if (fallible_quaff_speed%failed()) then
+      errors_quaff = fallible_quaff_speed%errors()
+      errors_rojff = fallible_json_speed%errors
       result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
     else
       result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")

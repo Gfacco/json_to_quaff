@@ -8,9 +8,11 @@ module json_to_quaff_test
       fallible_volume_t, &
       fallible_integer_t, &
       fallible_bool_t, &
+      fallible_real_t, &
       fallible_pressure_t, &
       fallible_mass_rate_t, &
       fallible_power_t
+
   use quaff, only: &
       operator(.unit.), &
       SECONDS, &
@@ -89,6 +91,15 @@ contains
           , it( &
               "with errors", &
               check_integer_with_errors) &
+          ]) &
+      , describe( &
+          "a fallible_real_t", &
+          [ it( &
+              "with no errors", &
+              check_real_valid) &
+          , it( &
+              "with errors", &
+              check_real_with_errors) &
           ]) &
       , describe( &
           "a fallible_bool_t", &
@@ -380,6 +391,49 @@ contains
       result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")
     end if
   end function
+
+  function check_real_valid() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_real
+    type(fallible_real_t) :: fallible_quaff_real
+    type(error_list_t) :: errors
+    character(len=*), parameter :: real_c = '1.0'
+    double precision, parameter :: real_r = 1.0
+
+
+    fallible_json_real = parse_json_from_string(real_c)
+
+    fallible_quaff_real = fallible_real_t(fallible_json_real)
+
+    if (fallible_quaff_real%failed()) then
+      errors = fallible_quaff_real%errors()
+      result_ = fail(errors%to_string())
+    else
+      result_ = assert_equals(fallible_quaff_real%real_(), real_r)
+    end if
+  end function
+
+  function check_real_with_errors() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_real
+    type(fallible_real_t) :: fallible_quaff_real
+    type(error_list_t) :: errors_quaff, errors_rojff
+    character(len=*), parameter :: not_a_json_c ='"1.0 mm^3'
+
+
+    fallible_json_real = parse_json_from_string(not_a_json_c)
+
+    fallible_quaff_real = fallible_real_t(fallible_json_real)
+
+    if (fallible_quaff_real%failed()) then
+      errors_quaff = fallible_quaff_real%errors()
+      errors_rojff = fallible_json_real%errors
+      result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
+    else
+      result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")
+    end if
+  end function
+
 
   function check_bool_valid() result(result_)
     type(result_t) :: result_

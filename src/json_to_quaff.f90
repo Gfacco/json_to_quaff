@@ -10,5 +10,6 @@ module json_to_quaff
   use json_to_fallible_bool_m, only : fallible_bool_t
   use json_to_quaff_pressure_m, only: fallible_pressure_t, fallible_pressure_unit_t
   use json_to_quaff_mass_rate_m, only: fallible_mass_rate_t, fallible_mass_rate_unit_t
+  use json_to_quaff_molar_mass_m, only: fallible_molar_mass_t, fallible_molar_mass_unit_t
   use json_to_quaff_power_m, only: fallible_power_t, fallible_power_unit_t
 end module

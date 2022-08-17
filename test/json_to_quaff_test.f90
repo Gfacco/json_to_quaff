@@ -13,7 +13,8 @@ module json_to_quaff_test
       fallible_mass_rate_t, &
       fallible_power_t, &
       fallible_speed_t, &
-      fallible_molar_mass_t
+      fallible_molar_mass_t, &
+      fallible_density_t
 
   use quaff, only: &
       operator(.unit.), &
@@ -26,7 +27,8 @@ module json_to_quaff_test
       KILOGRAMS_PER_SECOND, &
       WATTS, &
       METERS_PER_SECOND, &
-      GRAMS_PER_MOL
+      GRAMS_PER_MOL, &
+      GRAMS_PER_CUBIC_METER
   use rojff, only: fallible_json_value_t, parse_json_from_string
   use erloff, only: error_list_t
   use quaff_asserts_m, only: assert_equals
@@ -158,6 +160,15 @@ contains
           , it( &
               "with errors", &
               check_power_with_errors) &
+          ]) &
+      , describe( &
+          "a fallible_density_t", &
+          [ it( &
+              "with no errors", &
+              check_density_valid) &
+          , it( &
+              "with errors", &
+              check_density_with_errors) &
           ]) &
     ])
   end function
@@ -700,6 +711,47 @@ contains
     if (fallible_quaff_power%failed()) then
       errors_quaff = fallible_quaff_power%errors()
       errors_rojff = fallible_json_power%errors
+      result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
+    else
+      result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")
+    end if
+  end function
+  function check_density_valid() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_density
+    type(fallible_density_t) :: fallible_quaff_density
+    type(error_list_t) :: errors
+    character(len=*), parameter :: density_c ='"1.0 g/m^3"'
+    double precision, parameter :: density_r = 1.0d0
+
+
+    fallible_json_density = parse_json_from_string(density_c)
+
+    fallible_quaff_density = fallible_density_t(fallible_json_density)
+
+    if (fallible_quaff_density%failed()) then
+      errors = fallible_quaff_density%errors()
+      result_ = fail(errors%to_string())
+    else
+      result_ = assert_equals(fallible_quaff_density%density(), density_r.unit.GRAMS_PER_CUBIC_METER)
+    end if
+  end function
+
+  function check_density_with_errors() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_density
+    type(fallible_density_t) :: fallible_quaff_density
+    type(error_list_t) :: errors_quaff, errors_rojff
+    character(len=*), parameter :: not_a_json_c ='"1.0 W'
+
+
+    fallible_json_density = parse_json_from_string(not_a_json_c)
+
+    fallible_quaff_density = fallible_density_t(fallible_json_density)
+
+    if (fallible_quaff_density%failed()) then
+      errors_quaff = fallible_quaff_density%errors()
+      errors_rojff = fallible_json_density%errors
       result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
     else
       result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")

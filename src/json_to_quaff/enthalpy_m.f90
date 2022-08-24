@@ -1,4 +1,4 @@
-module json_to_enthalpy_m
+module json_to_quaff_enthalpy_m
     use quaff, only: &
       fallible_enthalpy_t, &
       fallible_enthalpy_unit_t, &

@@ -6,7 +6,6 @@ maintainer = "gfacco@gmail.com"
 copyright = "2022 Giovanni Facco"
 
 [dependencies]
-assert = { git = "https://github.com/sourceryinstitute/assert.git", tag = "1.0.0" }
 quaff = { git = "https://gitlab.com/everythingfunctional/quaff"}
 rojff = { git = "https://gitlab.com/everythingfunctional/rojff.git" }
 erloff = { git = "https://gitlab.com/everythingfunctional/erloff.git"}

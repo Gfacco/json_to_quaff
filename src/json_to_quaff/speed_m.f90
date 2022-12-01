@@ -37,7 +37,7 @@ function fallible_speed_from_fallible_json_value( &
   if (fallible_json_value%failed()) then
       fallible_speed = fallible_speed_t(fallible_json_value%errors)
   else
-      select type (json_value => fallible_json_value%json)
+      select type (json_value => fallible_json_value%value_)
           type is (json_string_t)
               fallible_speed = fallible_speed_t( &
                   parse_speed(json_value%string), &
@@ -62,7 +62,7 @@ function fallible_speed_unit_from_fallible_json_value( &
   if (fallible_json_value%failed()) then
     fallible_speed_unit = fallible_speed_unit_t(fallible_json_value%errors)
   else
-    select type (json_value => fallible_json_value%json)
+    select type (json_value => fallible_json_value%value_)
       type is (json_string_t)
         fallible_speed_unit = fallible_speed_unit_t( &
             parse_speed_unit(json_value%string), &

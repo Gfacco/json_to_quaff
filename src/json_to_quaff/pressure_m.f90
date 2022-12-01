@@ -37,7 +37,7 @@ function fallible_pressure_from_fallible_json_value( &
   if (fallible_json_value%failed()) then
       fallible_pressure = fallible_pressure_t(fallible_json_value%errors)
   else
-      select type (json_value => fallible_json_value%json)
+      select type (json_value => fallible_json_value%value_)
           type is (json_string_t)
               fallible_pressure = fallible_pressure_t( &
                   parse_pressure(json_value%string), &
@@ -62,7 +62,7 @@ function fallible_pressure_unit_from_fallible_json_value( &
   if (fallible_json_value%failed()) then
     fallible_pressure_unit = fallible_pressure_unit_t(fallible_json_value%errors)
   else
-    select type (json_value => fallible_json_value%json)
+    select type (json_value => fallible_json_value%value_)
       type is (json_string_t)
         fallible_pressure_unit = fallible_pressure_unit_t( &
             parse_pressure_unit(json_value%string), &

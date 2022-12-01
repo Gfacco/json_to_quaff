@@ -37,7 +37,7 @@ function fallible_molar_enthalpy_from_fallible_json_value( &
   if (fallible_json_value%failed()) then
       fallible_molar_enthalpy = fallible_molar_enthalpy_t(fallible_json_value%errors)
   else
-      select type (json_value => fallible_json_value%json)
+      select type (json_value => fallible_json_value%value_)
           type is (json_string_t)
               fallible_molar_enthalpy = fallible_molar_enthalpy_t( &
                   parse_molar_enthalpy(json_value%string), &
@@ -62,7 +62,7 @@ function fallible_molar_enthalpy_unit_from_fallible_json_value( &
   if (fallible_json_value%failed()) then
     fallible_molar_enthalpy_unit = fallible_molar_enthalpy_unit_t(fallible_json_value%errors)
   else
-    select type (json_value => fallible_json_value%json)
+    select type (json_value => fallible_json_value%value_)
       type is (json_string_t)
         fallible_molar_enthalpy_unit = fallible_molar_enthalpy_unit_t( &
             parse_molar_enthalpy_unit(json_value%string), &

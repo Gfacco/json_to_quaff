@@ -37,7 +37,7 @@ function fallible_density_from_fallible_json_value( &
   if (fallible_json_value%failed()) then
       fallible_density = fallible_density_t(fallible_json_value%errors)
   else
-      select type (json_value => fallible_json_value%json)
+      select type (json_value => fallible_json_value%value_)
           type is (json_string_t)
               fallible_density = fallible_density_t( &
                   parse_density(json_value%string), &
@@ -62,7 +62,7 @@ function fallible_density_unit_from_fallible_json_value( &
   if (fallible_json_value%failed()) then
     fallible_density_unit = fallible_density_unit_t(fallible_json_value%errors)
   else
-    select type (json_value => fallible_json_value%json)
+    select type (json_value => fallible_json_value%value_)
       type is (json_string_t)
         fallible_density_unit = fallible_density_unit_t( &
             parse_density_unit(json_value%string), &

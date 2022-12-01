@@ -40,7 +40,7 @@ function fallible_volume_from_fallible_json_value( &
   if (fallible_json_value%failed()) then
       fallible_volume = fallible_volume_t(fallible_json_value%errors)
   else
-      select type (json_value => fallible_json_value%json)
+      select type (json_value => fallible_json_value%value_)
           type is (json_string_t)
               fallible_volume = fallible_volume_t( &
                   parse_volume(json_value%string), &
@@ -65,7 +65,7 @@ function fallible_volume_unit_from_fallible_json_value( &
   if (fallible_json_value%failed()) then
     fallible_volume_unit = fallible_volume_unit_t(fallible_json_value%errors)
   else
-    select type (json_value => fallible_json_value%json)
+    select type (json_value => fallible_json_value%value_)
       type is (json_string_t)
         fallible_volume_unit = fallible_volume_unit_t( &
             parse_volume_unit(json_value%string), &

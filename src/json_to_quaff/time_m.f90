@@ -37,7 +37,7 @@ function fallible_time_from_fallible_json_value( &
   if (fallible_json_value%failed()) then
       fallible_time = fallible_time_t(fallible_json_value%errors)
   else
-      select type (json_value => fallible_json_value%json)
+      select type (json_value => fallible_json_value%value_)
           type is (json_string_t)
               fallible_time = fallible_time_t( &
                   parse_time(json_value%string), &
@@ -62,7 +62,7 @@ function fallible_time_unit_from_fallible_json_value( &
   if (fallible_json_value%failed()) then
     fallible_time_unit = fallible_time_unit_t(fallible_json_value%errors)
   else
-    select type (json_value => fallible_json_value%json)
+    select type (json_value => fallible_json_value%value_)
       type is (json_string_t)
         fallible_time_unit = fallible_time_unit_t( &
             parse_time_unit(json_value%string), &

@@ -37,7 +37,7 @@ function fallible_temperature_from_fallible_json_value( &
   if (fallible_json_value%failed()) then
       fallible_temperature = fallible_temperature_t(fallible_json_value%errors)
   else
-      select type (json_value => fallible_json_value%json)
+      select type (json_value => fallible_json_value%value_)
           type is (json_string_t)
               fallible_temperature = fallible_temperature_t( &
                   parse_temperature(json_value%string), &
@@ -62,7 +62,7 @@ function fallible_temperature_unit_from_fallible_json_value( &
   if (fallible_json_value%failed()) then
     fallible_temperature_unit = fallible_temperature_unit_t(fallible_json_value%errors)
   else
-    select type (json_value => fallible_json_value%json)
+    select type (json_value => fallible_json_value%value_)
       type is (json_string_t)
         fallible_temperature_unit = fallible_temperature_unit_t( &
             parse_temperature_unit(json_value%string), &

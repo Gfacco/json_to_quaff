@@ -37,7 +37,7 @@ function fallible_mass_from_fallible_json_value( &
   if (fallible_json_value%failed()) then
       fallible_mass = fallible_mass_t(fallible_json_value%errors)
   else
-      select type (json_value => fallible_json_value%json)
+      select type (json_value => fallible_json_value%value_)
           type is (json_string_t)
               fallible_mass = fallible_mass_t( &
                   parse_mass(json_value%string), &
@@ -62,7 +62,7 @@ function fallible_mass_unit_from_fallible_json_value( &
   if (fallible_json_value%failed()) then
     fallible_mass_unit = fallible_mass_unit_t(fallible_json_value%errors)
   else
-    select type (json_value => fallible_json_value%json)
+    select type (json_value => fallible_json_value%value_)
       type is (json_string_t)
         fallible_mass_unit = fallible_mass_unit_t( &
             parse_mass_unit(json_value%string), &

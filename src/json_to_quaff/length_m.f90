@@ -37,7 +37,7 @@ function fallible_length_from_fallible_json_value( &
   if (fallible_json_value%failed()) then
       fallible_length = fallible_length_t(fallible_json_value%errors)
   else
-      select type (json_value => fallible_json_value%json)
+      select type (json_value => fallible_json_value%value_)
           type is (json_string_t)
               fallible_length = fallible_length_t( &
                   parse_length(json_value%string), &
@@ -62,7 +62,7 @@ function fallible_length_unit_from_fallible_json_value( &
   if (fallible_json_value%failed()) then
     fallible_length_unit = fallible_length_unit_t(fallible_json_value%errors)
   else
-    select type (json_value => fallible_json_value%json)
+    select type (json_value => fallible_json_value%value_)
       type is (json_string_t)
         fallible_length_unit = fallible_length_unit_t( &
             parse_length_unit(json_value%string), &

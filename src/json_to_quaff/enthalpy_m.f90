@@ -37,7 +37,7 @@ module json_to_quaff_enthalpy_m
     if (fallible_json_value%failed()) then
         fallible_enthalpy = fallible_enthalpy_t(fallible_json_value%errors)
     else
-        select type (json_value => fallible_json_value%json)
+        select type (json_value => fallible_json_value%value_)
             type is (json_string_t)
                 fallible_enthalpy = fallible_enthalpy_t( &
                     parse_enthalpy(json_value%string), &
@@ -62,7 +62,7 @@ module json_to_quaff_enthalpy_m
     if (fallible_json_value%failed()) then
       fallible_enthalpy_unit = fallible_enthalpy_unit_t(fallible_json_value%errors)
     else
-      select type (json_value => fallible_json_value%json)
+      select type (json_value => fallible_json_value%value_)
         type is (json_string_t)
           fallible_enthalpy_unit = fallible_enthalpy_unit_t( &
               parse_enthalpy_unit(json_value%string), &

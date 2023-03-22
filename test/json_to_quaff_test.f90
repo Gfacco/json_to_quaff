@@ -14,7 +14,8 @@ module json_to_quaff_test
       fallible_power_t, &
       fallible_speed_t, &
       fallible_molar_mass_t, &
-      fallible_density_t
+      fallible_density_t, &
+      fallible_inverse_molar_mass_t
 
   use quaff, only: &
       operator(.unit.), &
@@ -28,7 +29,8 @@ module json_to_quaff_test
       WATTS, &
       METERS_PER_SECOND, &
       GRAMS_PER_MOL, &
-      GRAMS_PER_CUBIC_METER
+      GRAMS_PER_CUBIC_METER, &
+      MOLS_PER_GRAM
   use rojff, only: fallible_json_value_t, parse_json_from_string
   use erloff, only: error_list_t
   use quaff_asserts_m, only: assert_equals
@@ -88,6 +90,15 @@ contains
           , it( &
               "with errors", &
               check_molar_mass_with_errors) &
+          ]) &
+      , describe( &
+          "a fallible_inverse_molar_mass_t", &
+          [ it( &
+              "with no errors", &
+              check_inverse_molar_mass_valid) &
+          , it( &
+              "with errors", &
+              check_inverse_molar_mass_with_errors) &
           ]) &
       , describe( &
           "a fallible_length_t", &
@@ -334,6 +345,47 @@ contains
     if (fallible_quaff_molar_mass%failed()) then
       errors_quaff = fallible_quaff_molar_mass%errors()
       errors_rojff = fallible_json_molar_mass%errors
+      result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
+    else
+      result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")
+    end if
+  end function
+  function check_inverse_molar_mass_valid() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_inverse_molar_mass
+    type(fallible_inverse_molar_mass_t) :: fallible_quaff_inverse_molar_mass
+    type(error_list_t) :: errors
+    character(len=*), parameter :: inverse_molar_mass_c ='"1.0 mol/g"'
+    double precision, parameter :: inverse_molar_mass_r = 1.0d0
+
+
+    fallible_json_inverse_molar_mass = parse_json_from_string(inverse_molar_mass_c)
+
+    fallible_quaff_inverse_molar_mass = fallible_inverse_molar_mass_t(fallible_json_inverse_molar_mass)
+
+    if (fallible_quaff_inverse_molar_mass%failed()) then
+      errors = fallible_quaff_inverse_molar_mass%errors()
+      result_ = fail(errors%to_string())
+    else
+      result_ = assert_equals(fallible_quaff_inverse_molar_mass%inverse_molar_mass(), inverse_molar_mass_r.unit.MOLS_PER_GRAM)
+    end if
+  end function
+
+  function check_inverse_molar_mass_with_errors() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_inverse_molar_mass
+    type(fallible_inverse_molar_mass_t) :: fallible_quaff_inverse_molar_mass
+    type(error_list_t) :: errors_quaff, errors_rojff
+    character(len=*), parameter :: not_a_json_c ='"1.0 mm^3'
+
+
+    fallible_json_inverse_molar_mass = parse_json_from_string(not_a_json_c)
+
+    fallible_quaff_inverse_molar_mass = fallible_inverse_molar_mass_t(fallible_json_inverse_molar_mass)
+
+    if (fallible_quaff_inverse_molar_mass%failed()) then
+      errors_quaff = fallible_quaff_inverse_molar_mass%errors()
+      errors_rojff = fallible_json_inverse_molar_mass%errors
       result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
     else
       result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")

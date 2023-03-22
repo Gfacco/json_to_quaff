@@ -15,4 +15,5 @@ module json_to_quaff
   use json_to_quaff_density_m, only: fallible_density_t, fallible_density_unit_t
   use json_to_quaff_enthalpy_m, only: fallible_enthalpy_t, fallible_enthalpy_unit_t
   use json_to_quaff_molar_enthalpy_m, only: fallible_molar_enthalpy_t, fallible_molar_enthalpy_unit_t
+  use json_to_quaff_inverse_molar_mass_m, only: fallible_inverse_molar_mass_t, fallible_inverse_molar_mass_unit_t
 end module

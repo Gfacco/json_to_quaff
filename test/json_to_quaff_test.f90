@@ -16,6 +16,7 @@ module json_to_quaff_test
       fallible_speed_t, &
       fallible_molar_mass_t, &
       fallible_density_t, &
+      fallible_energy_t, &
       fallible_inverse_molar_mass_t
 
   use quaff, only: &
@@ -32,7 +33,8 @@ module json_to_quaff_test
       GRAMS_PER_MOL, &
       GRAMS_PER_CUBIC_METER, &
       MOLS_PER_GRAM, &
-      SQUARE_CENTIMETERS
+      SQUARE_CENTIMETERS, &
+      JOULES
   use rojff, only: fallible_json_value_t, parse_json_from_string
   use erloff, only: error_list_t
   use quaff_asserts_m, only: assert_equals
@@ -191,6 +193,15 @@ contains
           , it( &
               "with errors", &
               check_area_with_errors) &
+          ]) &
+      , describe( &
+          "a fallible_energy_t", &
+          [ it( &
+              "with no errors", &
+              check_energy_valid) &
+          , it( &
+              "with errors", &
+              check_energy_with_errors) &
           ]) &
     ])
   end function
@@ -856,6 +867,47 @@ contains
     if (fallible_quaff_area%failed()) then
       errors_quaff = fallible_quaff_area%errors()
       errors_rojff = fallible_json_area%errors
+      result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
+    else
+      result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")
+    end if
+  end function
+  function check_energy_valid() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_energy
+    type(fallible_energy_t) :: fallible_quaff_energy
+    type(error_list_t) :: errors
+    character(len=*), parameter :: energy_c ='"1.0 J"'
+    double precision, parameter :: energy_r = 1.0d0
+
+
+    fallible_json_energy = parse_json_from_string(energy_c)
+
+    fallible_quaff_energy = fallible_energy_t(fallible_json_energy)
+
+    if (fallible_quaff_energy%failed()) then
+      errors = fallible_quaff_energy%errors()
+      result_ = fail(errors%to_string())
+    else
+      result_ = assert_equals(fallible_quaff_energy%energy(), energy_r.unit.JOULES)
+    end if
+  end function
+
+  function check_energy_with_errors() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_energy
+    type(fallible_energy_t) :: fallible_quaff_energy
+    type(error_list_t) :: errors_quaff, errors_rojff
+    character(len=*), parameter :: not_a_json_c ='"1.0 W'
+
+
+    fallible_json_energy = parse_json_from_string(not_a_json_c)
+
+    fallible_quaff_energy = fallible_energy_t(fallible_json_energy)
+
+    if (fallible_quaff_energy%failed()) then
+      errors_quaff = fallible_quaff_energy%errors()
+      errors_rojff = fallible_json_energy%errors
       result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
     else
       result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")

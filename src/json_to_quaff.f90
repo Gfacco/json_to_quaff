@@ -20,4 +20,5 @@ module json_to_quaff
   use json_to_quaff_thermal_expansion_coefficient_m, only: &
       fallible_thermal_expansion_coefficient_t, &
       fallible_thermal_expansion_coefficient_unit_t
+  use json_to_quaff_energy_m, only: fallible_energy_t, fallible_energy_unit_t
 end module

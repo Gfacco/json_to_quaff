@@ -1,6 +1,7 @@
 module json_to_quaff_test
   use veggies, only: assert_equals, assert_that, result_t, test_item_t, describe, it, succeed, fail
   use json_to_quaff, only : &
+      fallible_area_t, &
       fallible_mass_t, &
       fallible_length_t, &
       fallible_temperature_t, &
@@ -15,8 +16,9 @@ module json_to_quaff_test
       fallible_speed_t, &
       fallible_molar_mass_t, &
       fallible_density_t, &
-      fallible_inverse_molar_mass_t, &
-      fallible_heat_transfer_coefficient_t
+      fallible_heat_transfer_coefficient_t, &
+      fallible_energy_t, &
+      fallible_inverse_molar_mass_t
 
   use quaff, only: &
       operator(.unit.), &
@@ -32,7 +34,9 @@ module json_to_quaff_test
       GRAMS_PER_MOL, &
       GRAMS_PER_CUBIC_METER, &
       MOLS_PER_GRAM, &
-      WATTS_PER_SQUARE_METER_KELVIN
+      WATTS_PER_SQUARE_METER_KELVIN, &
+      SQUARE_CENTIMETERS, &
+      JOULES
   use rojff, only: fallible_json_value_t, parse_json_from_string
   use erloff, only: error_list_t
   use quaff_asserts_m, only: assert_equals
@@ -191,6 +195,24 @@ contains
           , it( &
               "with errors", &
               check_heat_transfer_coefficient_with_errors) &
+          ]) &
+      , describe( &
+          "a fallible_area_t", &
+          [ it( &
+              "with no errors", &
+              check_area_valid) &
+          , it( &
+              "with errors", &
+              check_area_with_errors) &
+          ]) &
+      , describe( &
+          "a fallible_energy_t", &
+          [ it( &
+              "with no errors", &
+              check_energy_valid) &
+          , it( &
+              "with errors", &
+              check_energy_with_errors) &
           ]) &
     ])
   end function
@@ -848,16 +870,107 @@ contains
     type(fallible_json_value_t) :: fallible_json_heat_transfer_coefficient
     type(fallible_heat_transfer_coefficient_t) :: fallible_quaff_heat_transfer_coefficient
     type(error_list_t) :: errors_quaff, errors_rojff
-    character(len=*), parameter :: not_a_json_c ='"1.0 W'
-
-
+    character(len=*), parameter :: not_a_json_c ='"1.0 W'    
     fallible_json_heat_transfer_coefficient = parse_json_from_string(not_a_json_c)
 
     fallible_quaff_heat_transfer_coefficient = fallible_heat_transfer_coefficient_t(fallible_json_heat_transfer_coefficient)
 
     if (fallible_quaff_heat_transfer_coefficient%failed()) then
       errors_quaff = fallible_quaff_heat_transfer_coefficient%errors()
+    end if
+    fallible_json_heat_transfer_coefficient = parse_json_from_string(not_a_json_c)
+
+    fallible_quaff_heat_transfer_coefficient = fallible_heat_transfer_coefficient_t(fallible_json_heat_transfer_coefficient)
+
+    if (fallible_json_heat_transfer_coefficient%failed()) then
+      errors_quaff = fallible_quaff_heat_transfer_coefficient%errors()
       errors_rojff = fallible_json_heat_transfer_coefficient%errors
+      result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
+    else
+      result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")
+    end if
+  end function  
+  
+  
+  
+  function check_area_valid() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_area
+    type(fallible_area_t) :: fallible_quaff_area
+    type(error_list_t) :: errors
+    character(len=*), parameter :: area_c ='"1.0 cm^2"'
+    double precision, parameter :: area_r = 1.0d0
+
+
+    fallible_json_area = parse_json_from_string(area_c)
+
+    fallible_quaff_area = fallible_area_t(fallible_json_area)
+
+    if (fallible_quaff_area%failed()) then
+      errors = fallible_quaff_area%errors()
+      result_ = fail(errors%to_string())
+    else
+      result_ = assert_equals(fallible_quaff_area%area(), area_r.unit.SQUARE_CENTIMETERS)
+    end if
+  end function
+
+  function check_area_with_errors() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_area
+    type(fallible_area_t) :: fallible_quaff_area
+    type(error_list_t) :: errors_quaff, errors_rojff
+    character(len=*), parameter :: not_a_json_c ='"1.0 W'
+
+
+    fallible_json_area = parse_json_from_string(not_a_json_c)
+
+    fallible_quaff_area = fallible_area_t(fallible_json_area)
+
+    if (fallible_quaff_area%failed()) then
+      errors_quaff = fallible_quaff_area%errors()
+      errors_rojff = fallible_json_area%errors
+      result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
+    else
+      result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")
+    end if
+  end function
+
+  function check_energy_valid() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_energy
+    type(fallible_energy_t) :: fallible_quaff_energy
+    type(error_list_t) :: errors
+    character(len=*), parameter :: energy_c ='"1.0 J"'
+    double precision, parameter :: energy_r = 1.0d0
+
+
+    fallible_json_energy = parse_json_from_string(energy_c)
+
+    fallible_quaff_energy = fallible_energy_t(fallible_json_energy)
+
+    if (fallible_quaff_energy%failed()) then
+      errors = fallible_quaff_energy%errors()
+      result_ = fail(errors%to_string())
+    else
+      result_ = assert_equals(fallible_quaff_energy%energy(), energy_r.unit.JOULES)
+    end if
+  end function
+
+  function check_energy_with_errors() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_energy
+    type(fallible_energy_t) :: fallible_quaff_energy
+    type(error_list_t) :: errors_quaff, errors_rojff
+    character(len=*), parameter :: not_a_json_c ='"1.0 W'
+
+
+    fallible_json_energy = parse_json_from_string(not_a_json_c)
+
+    fallible_quaff_energy = fallible_energy_t(fallible_json_energy)
+
+    if (fallible_quaff_energy%failed()) then
+      errors_quaff = fallible_quaff_energy%errors()
+      errors_rojff = fallible_json_energy%errors
       result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
     else
       result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")

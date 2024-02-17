@@ -1,4 +1,5 @@
 module json_to_quaff
+  use json_to_quaff_area_m, only : fallible_area_t, fallible_area_unit_t
   use json_to_quaff_mass_m, only : fallible_mass_t, fallible_mass_unit_t
   use json_to_quaff_temperature_m, only : fallible_temperature_t, fallible_temperature_unit_t
   use json_to_quaff_time_m, only : fallible_time_t, fallible_time_unit_t
@@ -22,4 +23,5 @@ module json_to_quaff
   use json_to_quaff_heat_transfer_coefficient_m, only: &
     fallible_heat_transfer_coefficient_t, &
     fallible_heat_transfer_coefficient_unit_t
+  use json_to_quaff_energy_m, only: fallible_energy_t, fallible_energy_unit_t
 end module

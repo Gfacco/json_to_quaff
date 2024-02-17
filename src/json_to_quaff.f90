@@ -24,4 +24,5 @@ module json_to_quaff
     fallible_heat_transfer_coefficient_t, &
     fallible_heat_transfer_coefficient_unit_t
   use json_to_quaff_energy_m, only: fallible_energy_t, fallible_energy_unit_t
+  use json_to_quaff_thermal_conductivity_m, only: fallible_thermal_conductivity_t, fallible_thermal_conductivity_unit_t
 end module

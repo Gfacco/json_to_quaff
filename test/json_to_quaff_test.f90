@@ -18,7 +18,8 @@ module json_to_quaff_test
       fallible_density_t, &
       fallible_heat_transfer_coefficient_t, &
       fallible_energy_t, &
-      fallible_inverse_molar_mass_t
+      fallible_inverse_molar_mass_t, &
+      fallible_thermal_conductivity_t
 
   use quaff, only: &
       operator(.unit.), &
@@ -36,7 +37,8 @@ module json_to_quaff_test
       MOLS_PER_GRAM, &
       WATTS_PER_SQUARE_METER_KELVIN, &
       SQUARE_CENTIMETERS, &
-      JOULES
+      JOULES, &
+      WATTS_PER_METER_KELVIN
   use rojff, only: fallible_json_value_t, parse_json_from_string
   use erloff, only: error_list_t
   use quaff_asserts_m, only: assert_equals
@@ -213,6 +215,15 @@ contains
           , it( &
               "with errors", &
               check_energy_with_errors) &
+          ]) &
+      , describe( &
+          "a fallible_thermal_conductivity_t", &
+          [ it( &
+              "with no errors", &
+              check_thermal_conductivity_valid) &
+          , it( &
+              "with errors", &
+              check_thermal_conductivity_with_errors) &
           ]) &
     ])
   end function
@@ -971,6 +982,50 @@ contains
     if (fallible_quaff_energy%failed()) then
       errors_quaff = fallible_quaff_energy%errors()
       errors_rojff = fallible_json_energy%errors
+      result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
+    else
+      result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")
+    end if
+  end function
+
+  function check_thermal_conductivity_valid() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_thermal_conductivity
+    type(fallible_thermal_conductivity_t) :: fallible_quaff_thermal_conductivity
+    type(error_list_t) :: errors
+    character(len=*), parameter :: thermal_conductivity_c ='"1.0 W/(m K)"'
+    double precision, parameter :: thermal_conductivity_r = 1.0d0
+
+
+    fallible_json_thermal_conductivity = parse_json_from_string(thermal_conductivity_c)
+
+    fallible_quaff_thermal_conductivity = fallible_thermal_conductivity_t(fallible_json_thermal_conductivity)
+
+    if (fallible_quaff_thermal_conductivity%failed()) then
+      errors = fallible_quaff_thermal_conductivity%errors()
+      result_ = fail(errors%to_string())
+    else
+      result_ = &
+        assert_equals(  fallible_quaff_thermal_conductivity%thermal_conductivity(), &
+                        thermal_conductivity_r.unit.WATTS_PER_METER_KELVIN)
+    end if
+  end function
+
+  function check_thermal_conductivity_with_errors() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_thermal_conductivity
+    type(fallible_thermal_conductivity_t) :: fallible_quaff_thermal_conductivity
+    type(error_list_t) :: errors_quaff, errors_rojff
+    character(len=*), parameter :: not_a_json_c ='"1.0 W'
+
+
+    fallible_json_thermal_conductivity = parse_json_from_string(not_a_json_c)
+
+    fallible_quaff_thermal_conductivity = fallible_thermal_conductivity_t(fallible_json_thermal_conductivity)
+
+    if (fallible_quaff_thermal_conductivity%failed()) then
+      errors_quaff = fallible_quaff_thermal_conductivity%errors()
+      errors_rojff = fallible_json_thermal_conductivity%errors
       result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
     else
       result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")

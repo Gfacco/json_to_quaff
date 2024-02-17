@@ -18,11 +18,12 @@ module json_to_quaff
   use json_to_quaff_molar_enthalpy_m, only: fallible_molar_enthalpy_t, fallible_molar_enthalpy_unit_t
   use json_to_quaff_inverse_molar_mass_m, only: fallible_inverse_molar_mass_t, fallible_inverse_molar_mass_unit_t
   use json_to_quaff_thermal_expansion_coefficient_m, only: &
-    fallible_thermal_expansion_coefficient_t, &
-    fallible_thermal_expansion_coefficient_unit_t
+  fallible_thermal_expansion_coefficient_t, &
+  fallible_thermal_expansion_coefficient_unit_t
   use json_to_quaff_heat_transfer_coefficient_m, only: &
-    fallible_heat_transfer_coefficient_t, &
-    fallible_heat_transfer_coefficient_unit_t
+  fallible_heat_transfer_coefficient_t, &
+  fallible_heat_transfer_coefficient_unit_t
   use json_to_quaff_energy_m, only: fallible_energy_t, fallible_energy_unit_t
   use json_to_quaff_thermal_conductivity_m, only: fallible_thermal_conductivity_t, fallible_thermal_conductivity_unit_t
+  use json_to_quaff_specific_heat_m, only: fallible_specific_heat_t, fallible_specific_heat_unit_t
 end module

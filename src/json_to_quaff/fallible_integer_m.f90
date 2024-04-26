@@ -46,7 +46,7 @@ contains
 
     select type (json)
     type is (json_integer_t)
-      fallible_integer%integer__ = json%number
+      fallible_integer%integer__ = int(json%number)
     class default
       fallible_integer%errors_ = error_list_t(fatal_t( &
           module_t(MODULE_NAME), &

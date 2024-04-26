@@ -50,7 +50,7 @@ jobs:
       run: |
         which gfortran
         gfortran --version
-        fpm test --flag "-g -Wall -Wextra -pedantic -Wimplicit-interface -fcheck=all -fbacktrace -finit-real=snan -ffpe-trap=invalid,zero,overflow,underflow,denormal" -- -v
+        fpm test --flag "-g -Wall -Wextra -Werror -pedantic -std=f2018 -Wimplicit-interface -fcheck=all -fbacktrace -finit-real=snan -ffpe-trap=invalid,zero,overflow,underflow,denormal" -- -v
 
     - name: Build and Test Windows
       if: contains(matrix.os, 'windows')
@@ -58,4 +58,4 @@ jobs:
       run: |
         which gfortran
         gfortran --version
-        fpm test --flag "-g -Wall -Wextra -pedantic -Wimplicit-interface -fcheck=all -fbacktrace -finit-real=snan -ffpe-trap=invalid,zero,overflow,underflow,denormal" -- -v
+        fpm test --flag "-g -Wall -Wextra -Werror -pedantic -std=f2018 -Wimplicit-interface -fcheck=all -fbacktrace -finit-real=snan -ffpe-trap=invalid,zero,overflow,underflow,denormal" -- -v

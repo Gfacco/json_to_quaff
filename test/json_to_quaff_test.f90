@@ -24,7 +24,8 @@ module json_to_quaff_test
       fallible_thermal_conductivity_t, &
       fallible_specific_heat_t, &
       fallible_amount_temperature_rate_t, & 
-      fallible_conductance_t
+      fallible_conductance_t, &
+      fallible_heat_capacity_t
 
   use quaff, only: &
       operator(.unit.), &
@@ -48,7 +49,8 @@ module json_to_quaff_test
       MOLS_PER_SECOND, &
       MOLS_KELVIN_PER_SECOND, &
       MOLS, &
-      watts_per_kelvin
+      watts_per_kelvin, &
+      joules_per_kelvin
   use rojff, only: fallible_json_value_t, parse_json_from_string
   use erloff, only: error_list_t
   use quaff_asserts_m, only: assert_equals
@@ -261,6 +263,15 @@ contains
           , it( &
               "with errors", &
               check_amount_temperature_rate_with_errors) &
+          ]) &
+      , describe( &
+          "a fallible_heat_capacity_t", &
+          [ it( &
+              "with no errors", &
+              check_heat_capacity_valid) &
+          , it( &
+              "with errors", &
+              check_heat_capacity_with_errors) &
           ]) &
       , describe( &
           "a fallible_amount_t", &
@@ -1244,6 +1255,49 @@ contains
     if (fallible_quaff_amount%failed()) then
       errors_quaff = fallible_quaff_amount%errors()
       errors_rojff = fallible_json_amount%errors
+      result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
+    else
+      result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")
+    end if
+  end function
+  function check_heat_capacity_valid() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_heat_capacity
+    type(fallible_heat_capacity_t) :: fallible_quaff_heat_capacity
+    type(error_list_t) :: errors
+    character(len=*), parameter :: heat_capacity_c ='"1.0 J/K"'
+    double precision, parameter :: heat_capacity_r = 1.0d0
+
+
+    fallible_json_heat_capacity = parse_json_from_string(heat_capacity_c)
+
+    fallible_quaff_heat_capacity = fallible_heat_capacity_t(fallible_json_heat_capacity)
+
+    if (fallible_quaff_heat_capacity%failed()) then
+      errors = fallible_quaff_heat_capacity%errors()
+      result_ = fail(errors%to_string())
+    else
+      result_ = &
+        assert_equals(fallible_quaff_heat_capacity%heat_capacity(), &
+                        heat_capacity_r.unit.joules_per_kelvin)
+    end if
+  end function
+
+  function check_heat_capacity_with_errors() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_heat_capacity
+    type(fallible_heat_capacity_t) :: fallible_quaff_heat_capacity
+    type(error_list_t) :: errors_quaff, errors_rojff
+    character(len=*), parameter :: not_a_json_c ='"1.0 W'
+
+
+    fallible_json_heat_capacity = parse_json_from_string(not_a_json_c)
+
+    fallible_quaff_heat_capacity = fallible_heat_capacity_t(fallible_json_heat_capacity)
+
+    if (fallible_quaff_heat_capacity%failed()) then
+      errors_quaff = fallible_quaff_heat_capacity%errors()
+      errors_rojff = fallible_json_heat_capacity%errors
       result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
     else
       result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")

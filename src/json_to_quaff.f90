@@ -1,5 +1,6 @@
 module json_to_quaff
   use json_to_quaff_conductance_m, only : fallible_conductance_t, fallible_conductance_unit_t
+  use json_to_quaff_heat_capacity_m, only : fallible_heat_capacity_t, fallible_heat_capacity_unit_t
   use json_to_quaff_amount_m, only : fallible_amount_t, fallible_amount_unit_t
   use json_to_quaff_amount_rate_m, only : fallible_amount_rate_t, fallible_amount_rate_unit_t
   use json_to_quaff_amount_temperature_rate_m, only : fallible_amount_temperature_rate_t, fallible_amount_temperature_rate_unit_t

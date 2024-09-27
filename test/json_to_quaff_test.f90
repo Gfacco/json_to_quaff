@@ -1,6 +1,7 @@
 module json_to_quaff_test
   use veggies, only: assert_equals, assert_that, result_t, test_item_t, describe, it, succeed, fail
   use json_to_quaff, only : &
+      fallible_amount_rate_t, &
       fallible_area_t, &
       fallible_mass_t, &
       fallible_length_t, &
@@ -40,7 +41,8 @@ module json_to_quaff_test
       SQUARE_CENTIMETERS, &
       JOULES, &
       WATTS_PER_METER_KELVIN, &
-      JOULES_PER_KILOGRAM_KELVIN
+      JOULES_PER_KILOGRAM_KELVIN, &
+      MOLS_PER_SECOND
   use rojff, only: fallible_json_value_t, parse_json_from_string
   use erloff, only: error_list_t
   use quaff_asserts_m, only: assert_equals
@@ -235,6 +237,15 @@ contains
           , it( &
               "with errors", &
               check_specific_heat_with_errors) &
+          ]) &
+      , describe( &
+          "a fallible_amount_rate_t", &
+          [ it( &
+              "with no errors", &
+              check_amount_rate_valid) &
+          , it( &
+              "with errors", &
+              check_amount_rate_with_errors) &
           ]) &
     ])
   end function
@@ -1080,6 +1091,49 @@ contains
     if (fallible_quaff_specific_heat%failed()) then
       errors_quaff = fallible_quaff_specific_heat%errors()
       errors_rojff = fallible_json_specific_heat%errors
+      result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
+    else
+      result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")
+    end if
+  end function
+  function check_amount_rate_valid() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_amount_rate
+    type(fallible_amount_rate_t) :: fallible_quaff_amount_rate
+    type(error_list_t) :: errors
+    character(len=*), parameter :: amount_rate_c ='"1.0 mol/s"'
+    double precision, parameter :: amount_rate_r = 1.0d0
+
+
+    fallible_json_amount_rate = parse_json_from_string(amount_rate_c)
+
+    fallible_quaff_amount_rate = fallible_amount_rate_t(fallible_json_amount_rate)
+
+    if (fallible_quaff_amount_rate%failed()) then
+      errors = fallible_quaff_amount_rate%errors()
+      result_ = fail(errors%to_string())
+    else
+      result_ = &
+        assert_equals(  fallible_quaff_amount_rate%amount_rate(), &
+                        amount_rate_r.unit.mols_per_second)
+    end if
+  end function
+
+  function check_amount_rate_with_errors() result(result_)
+    type(result_t) :: result_
+    type(fallible_json_value_t) :: fallible_json_amount_rate
+    type(fallible_amount_rate_t) :: fallible_quaff_amount_rate
+    type(error_list_t) :: errors_quaff, errors_rojff
+    character(len=*), parameter :: not_a_json_c ='"1.0 W'
+
+
+    fallible_json_amount_rate = parse_json_from_string(not_a_json_c)
+
+    fallible_quaff_amount_rate = fallible_amount_rate_t(fallible_json_amount_rate)
+
+    if (fallible_quaff_amount_rate%failed()) then
+      errors_quaff = fallible_quaff_amount_rate%errors()
+      errors_rojff = fallible_json_amount_rate%errors
       result_ = assert_equals(errors_quaff%to_string(), errors_rojff%to_string())
     else
       result_ = fail("fallible_quaff did not succesffuly retain errors from a failed fallible_json")

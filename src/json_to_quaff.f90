@@ -1,4 +1,5 @@
 module json_to_quaff
+  use json_to_quaff_amount_rate_m, only : fallible_amount_rate_t, fallible_amount_rate_unit_t
   use json_to_quaff_area_m, only : fallible_area_t, fallible_area_unit_t
   use json_to_quaff_mass_m, only : fallible_mass_t, fallible_mass_unit_t
   use json_to_quaff_temperature_m, only : fallible_temperature_t, fallible_temperature_unit_t
